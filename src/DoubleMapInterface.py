@@ -3,6 +3,24 @@ from GoogleMapsApiInterface import *
 import json
 import urllib
 import sys
+
+map_colloquial_bus_number_to_route =    {
+                                                    '1 S.Walnut':'1001529',
+                                                    '1 Fee Lane':'1001531',
+                                                    '2 S.Rogers':'1001527',
+                                                    '3 Curry Pike':'1001537',
+                                                    '3 College Mall':'1001536',
+                                                    '4 High Street':'1001541',
+                                                    '4 Bloomfield':'1001539',
+                                                    '5':'1001543',
+                                                    '6':'1001545',
+                                                    '9':'1001561',
+                                                    'A':'2000316',
+                                                    'B':'2000318',
+                                                    'D':'2000319',
+                                                    'E':'2000320'
+                                                }
+
 def get_all_buses_status():
     """
     This function returns latitude and longitude of each bus
@@ -33,26 +51,21 @@ def test_get_all_buses_status():
     """
     return len(get_all_buses_status())
 
-def map_route_to_colloquial_bus_number():
+def get_route_status(input_colloquial_bus_numbers_list):
     """
-    This code maps route numbers to natural numbers used for buses. For example, route 6 (bus name:553 ) runs on route no. 1001545
+    This function returns a dictionary with status of each bus on each input route
+    input_route_list can have one or a list of bus numbers. This will be used to get the route numbers. 
+    For example, user might want yo travel by route 6 OR route 9. Then we feed both route numbers for route6 and 9 to this function.
+    Output: Each bus running on the input route along with its latitude and longitude.
     """
-    dict_route_number_to_colloquial_bus_number =    {
-                                                        '1001529' : '1 S.Walnut',
-                                                        '1001531':'1 Fee Lane',
-                                                        '1001527':'2 S.Rogers',
-                                                        '1001537':'3 Curry Pike',
-                                                        '1001536':'3 College Mall',
-                                                        '1001541':'4 High Street',
-                                                        '1001539':'4 Bloomfield',
-                                                        '1001543':'5',
-                                                        '1001545':'6',
-                                                        '1001561':'9',
-                                                        '2000316':'A',
-                                                        '2000318':'B',
-                                                        '2000319':'D',
-                                                        '2000320':'E'
-                                                    }
+    #Find route numbers from input bus numbers list
+    dict_colloquial_bus_route = {}
+    for bus_number in input_colloquial_bus_numbers_list:
+        dict_colloquial_bus_route[bus] = map_colloquial_bus_number_to_route[bus_number]
+    
+    #Query doublemap API and get status for each route
+    #To be done in JS now
+    return None
 
 if __name__ == "__main__":
     #test if the API is working
