@@ -43,7 +43,7 @@ def test_get_lat_lng_of_address():
     #case 1: address : 1600 Amphitheatre Parkway, Mountain View, CA.
     #Expected output : "lat" : 37.42291810, "lng" : -122.08542120
     API_KEY=open("API_KEY.txt","r").readlines()[0].strip("\n").strip("\r")
-    address = "1600 Amphitheatre Parkway, Mountain View, CA"
+    address = "2029 Ridge Ave, Evanston, IL, United States"
     return ( (37.421998500000001,-122.0839544) == get_lat_lng_of_address(API_KEY,address) )
 
 if __name__ == "__main__":
