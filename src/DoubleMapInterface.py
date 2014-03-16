@@ -11,24 +11,64 @@ STOPPED = 0
 APPROACHING = 1
 LEAVING = 2
 
-#The map for regular bus num and bus number
+ALERT_DISTANCE = 0.3
 
-#Find bus numbers from input colloquial bus numbers list
-#TODO Keep a JSON file that can be updated so that colloquial bus number can be mapped to actual bus numbers used by Doublemap
-#map_colloquial_to_acutal_bus_number = {'9':['9725','243'],'9L':'344','6':['553','555','554','551']}
-map_colloquial_to_acutal_bus_number = {'EL':['29727', '29732'], 'CL':['29729'] }
+#Map for colloquial bus number to route number
+def create_colloquial_to_route():
+    if type(colloquial_bus_numbers) is not list:
+        print 'Invalid parameter for colloquial bus list!'
+        return None
+    else:
+        dict_coll_to_route = dict.fromkeys(colloquial_bus_numbers, 0)
 
-bus_number_list = []
+        dblmap_routes_uri = "http://northwestern.doublemap.com/map/v2/routes"
+        routes = json.loads(urllib.urlopen(dblmap_routes_uri).read())
+        #print (routes[0]['short_name'])
+
+        for route in routes:
+            dict_coll_to_route[route['short_name']] = route['id']
+        return dict_coll_to_route
+
+# Mapping between route number to actual number
+def create_route_to_actual():
+    all_buses = get_all_buses_status()
+    dict_route_to_actual = {}
+    for bus in all_buses:
+            dict_route_to_actual.setdefault(bus['route'], []).append(bus['id'])
+    return dict_route_to_actual
 
 
-#Map to convert colloquial bus number to actual bus number
+def colloquial_to_actual(colloquial_bus_numbers):
+    """
+    The route numbers and actual bus numbers change daily from Transport service provider. 
+    This function creates a map of colloquial numbers to route number and then gets the actual bus numbers on these routes
+    Returns a dict of colloquial_bus_numbers to actual_bus_numbers {'EL': [29724, 29727]}
+    """
+    dict_colloquial_to_actual = {}
+    bus_number_list = []
+    route_list = []
+
+    map_colloquial_to_route = create_colloquial_to_route()
+    map_route_to_actual = create_route_to_actual()
+
+    for colloquial_bus in colloquial_bus_numbers:
+        dict_colloquial_to_actual[colloquial_bus] = map_route_to_actual[map_colloquial_to_route[colloquial_bus]]
+
+    return dict_colloquial_to_actual
+
+def actual_to_colloquial(actual_bus_numbers):
+    colloquial_bus_numbers = []
+
+
+# ************This should probably go************
+# Map to convert colloquial bus number to actual bus number
 def loadMapFromFile(fileName):
     with open(fileName, "r") as jsFile:
-        obj = json.loads(fileName.read())
-        pprint(obj)
+        map_colloquial_to_acutal_bus_number = json.loads(jsFile.read())
+        
 
 
-def get_all_buses_status():
+def get_all_buses_status(isLatLng = None):
     """
     This function returns latitude and longitude of each bus
     format : {"bus name/number":(latitude, longitude)}
@@ -37,14 +77,19 @@ def get_all_buses_status():
                 )
     """
     dict_bus_lat_lng = {}
-    doublemap_url = 'http://northwestern.doublemap.com/map/v2/buses'
-    #"http://bloomington.doublemap.com/map/v2/buses"
-    response = json.loads(urllib.urlopen(doublemap_url).read())
+    #doublemap_buses_url = "http://bloomington.doublemap.com/map/v2/buses"
+    doublemap_buses_url = 'http://northwestern.doublemap.com/map/v2/buses'
+    
+    response = json.loads(urllib.urlopen(doublemap_buses_url).read())
     if len(response) == 0:
         print "Something went wrong while getting status of each bus..."
-        sys.exit(0)    
+        sys.exit(0)
+
+    if not isLatLng:
+        return response
+
     for bus in response:
-        bus_number = bus['name']
+        bus_number = bus['id']
         lat = bus['lat']
         lng = bus['lon']
         route = bus['route']
@@ -63,23 +108,21 @@ def get_coordinates_of_buses(bus_number_list):
     """
     def pulls out coordinates infromation for the bus numbers given as input
     """
-    dict_all_buses_lat_lng = get_all_buses_status()
+    isLatLng = True
+    dict_all_buses_lat_lng = get_all_buses_status(isLatLng)
+
     dict_bus_lat_lng = {}
     for bus_number in bus_number_list:
         dict_bus_lat_lng[bus_number] = (dict_all_buses_lat_lng[bus_number][0], dict_all_buses_lat_lng[bus_number][1])
     return dict_bus_lat_lng
 
-def get_bus_distance(colloquial_bus_numbers, target_location_coordinates):
+def get_bus_distance(bus_number_list, target_location_coordinates):
     """
     This function returns a dictionary with status of each bus on each input route
     input_route_list can have one or a list of bus numbers. This will be used to get the route numbers. 
-    For example, user might want yo travel by route 6 OR route 9. Then we feed both route numbers for route6 and 9 to this function.
+    For example, user might want yo travel by route 6 OR route 9. Then we feed both actual bus numbers for route6 and 9 to this function.
     Output: Each bus running on the input route along with its latitude and longitude.
     """
-    
-    for bus in colloquial_bus_numbers:
-        bus_number_list.extend(map_colloquial_to_acutal_bus_number[bus])
-
     #Query doublemap API and get status for each route
     dict_bus_lat_lng = get_coordinates_of_buses(bus_number_list)
     # use this dict to store distances
@@ -125,20 +168,26 @@ def find_distance_between_coordinates(bus_coordinates, target_location_coordinat
     return distance
 
 def poll_on_distance(approaching_buses, target_location_coordinates):
+    """
+    This function checks if the distance between bus and target location is less than ALERT_DISTANCE,
+    and alerts the user accordingly.
+    """
     dict_bus_distance = get_bus_distance(approaching_buses, target_location_coordinates)
-    for bus, distance in dict_bus_distance:
-        if distance < 1:
-            #ALERT user
-            print "Bus ",bus," is approaching and is at distance: ", distance
-            print "Move your ass now!"
-            sys.exit(0)
+    
+    for bus, distance in dict_bus_distance.iteritems():
+        if distance < ALERT_DISTANCE:
+            # ALERT user
+            print "Alert for bus ", bus
+            # remove the bus from list for which user has been alerted.
+            approaching_buses.remove(bus)
         else:
             print "Bus", bus," is approaching and is at distance: ", distance
+    return approaching_buses
 
-def get_all_bus_position(colloquial_bus_numbers, target_location_coordinates):
-    dict_bus_lat_lng_instance1 = get_coordinates_of_buses(colloquial_bus_numbers)
+def get_all_bus_position(bus_number_list, target_location_coordinates):
+    dict_bus_lat_lng_instance1 = get_coordinates_of_buses(bus_number_list)
     time.sleep(2)
-    dict_bus_lat_lng_instance2 = get_coordinates_of_buses(colloquial_bus_numbers)
+    dict_bus_lat_lng_instance2 = get_coordinates_of_buses(bus_number_list)
 
     # get all the approaching buses
     approaching_buses = []
@@ -153,6 +202,9 @@ def get_all_bus_position(colloquial_bus_numbers, target_location_coordinates):
         if status[1] == APPROACHING:
             approaching_buses.append(bus)
     return dict_bus_position
+
+
+
     
 if __name__ == "__main__":
     #test if the API is working
@@ -160,30 +212,32 @@ if __name__ == "__main__":
         print "Code accessing Doublemap API is working correctly"
     else:
         print "Something seems to be wrong with accessing code of Doublemap API"
-
+    '''
+    colloquial_bus_numbers = ['6','9']
+    target_location_coordinates = (39.171539306641,-86.512619018555)
+    '''
     colloquial_bus_numbers = ['EL','CL']
-    colloquial_bus_numbers = ['29727', '29732', '29729']
-    #target_location_coordinates = (39.171539306641,-86.512619018555)
+    #colloquial_bus_numbers = ['29727', '29732', '29729']
+    #EVANSTON n/w university
     target_location_coordinates = (42.0549051148951, -87.6870495230669)
+    
+    
+    dict_colloquial_to_actual = colloquial_to_actual(colloquial_bus_numbers)
+    '''
+    dict_colloquial_to_actual.values() is a list of lists (ex: [[29724, 29727], [29729]])
+    Following operation flattens this list.
+    '''
+    bus_number_list = sum(dict_colloquial_to_actual.values(), [])
 
     while True:
-        print "Position: \n"
-        dict_bus_position = get_all_bus_position(colloquial_bus_numbers, target_location_coordinates)
-
-        pprint(dict_bus_position)
-        print "\n----------------------------------------------------------------------"
-
-        approaching_buses = ['EL', 'CL']
-
+        
         time.sleep(4)
-        dict_bus_distance = get_bus_distance(approaching_buses, target_location_coordinates)
+        bus_number_list = poll_on_distance(bus_number_list, target_location_coordinates)
         print "Distance: \n"
-        pprint(dict_bus_distance)
-        print '\n\n'
+        if len(bus_number_list) == 0:
+            sys.exit(0)
 
     sys.exit(0)
-
-    #map_actual_to_colloquial_bus_number = {('553','555','554','551'): '6', ('9725','243'): '9'}
 
     '''
     #TODO: Code to optimize polling
@@ -191,21 +245,5 @@ if __name__ == "__main__":
         #poll after 8 minutes
     if(status[0] > 5)
         poll after 3 minutes
-    '''
-
-    #work on approaching buses to poll the distance
-    while True:
-        time.sleep(2)
-        poll_on_distance(approaching_buses, target_location_coordinates)
-
-    '''
-    while True:
-        time.sleep(5) # delays for 5 seconds
-        #Find which bus is approaching
-        dict_bus_status = get_bus_distance(colloquial_bus_numbers, target_location_coordinates)
-        for bus in dict_bus_status.keys():
-            if bus['status'][1] == APPROACHING:
-                print "Bus ",bus," is approaching and is at distance: ",bus['status'][0]
-
     '''
 
