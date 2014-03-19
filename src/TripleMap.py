@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # <nbformat>3.0</nbformat>
 
-# <codecell>
-
 #This code will keep a track of locations of each bus
 from GoogleMapsApiInterface import *
 import json
@@ -27,8 +25,6 @@ DOUBLEMAP_ROUTES_API_URL = {
 MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS = {}
 ALERT_DISTANCE = 0.3
 
-# <codecell>
-
 #Map for colloquial bus number to route number
 def create_colloquial_to_route():
     if type(colloquial_bus_numbers) is not list:
@@ -45,8 +41,6 @@ def create_colloquial_to_route():
             dict_coll_to_route[route['short_name']] = route['id']
         return dict_coll_to_route
 
-# <codecell>
-
 # Mapping between route number to actual number
 def create_route_to_actual():
     all_buses = get_all_buses_status()
@@ -54,8 +48,6 @@ def create_route_to_actual():
     for bus in all_buses:
             dict_route_to_actual.setdefault(bus['route'], []).append(bus['id'])
     return dict_route_to_actual
-
-# <codecell>
 
 def colloquial_to_actual(colloquial_bus_numbers):
     """
@@ -75,8 +67,6 @@ def colloquial_to_actual(colloquial_bus_numbers):
 
     return dict_colloquial_to_actual
 
-# <codecell>
-
 def actual_to_colloquial(actual_bus_numbers):
     colloquial_bus_numbers = []
 
@@ -86,9 +76,6 @@ def actual_to_colloquial(actual_bus_numbers):
 def loadMapFromFile(fileName):
     with open(fileName, "r") as jsFile:
         map_colloquial_to_acutal_bus_number = json.loads(jsFile.read())
-        
-
-# <codecell>
 
 def get_all_buses_status(isLatLng = None):
     """
@@ -121,15 +108,11 @@ def get_all_buses_status(isLatLng = None):
         dict_bus_lat_lng[bus_number] = (lat,lng)
     return dict_bus_lat_lng
 
-# <codecell>
-
 def test_get_all_buses_status():
     """
     Test function
     """
     return len(get_all_buses_status())
-
-# <codecell>
 
 def get_coordinates_of_buses(bus_number_list):
     """
@@ -143,8 +126,6 @@ def get_coordinates_of_buses(bus_number_list):
         if bus_number in dict_all_buses_lat_lng:
             dict_bus_lat_lng[bus_number] = (dict_all_buses_lat_lng[bus_number][0], dict_all_buses_lat_lng[bus_number][1])
     return dict_bus_lat_lng
-
-# <codecell>
 
 def get_bus_distance(bus_number_list, target_location_coordinates):
     """
@@ -160,8 +141,6 @@ def get_bus_distance(bus_number_list, target_location_coordinates):
     for bus, latLng in dict_bus_lat_lng.iteritems():
         dict_bus_distance[bus] = find_distance_between_coordinates(latLng, target_location_coordinates)
     return dict_bus_distance
-
-# <codecell>
 
 def is_bus_approaching_waiting_or_leaving_point(bus_coordinates_before, bus_coordinates_later, target_location_coordinates):
     """
@@ -179,8 +158,6 @@ def is_bus_approaching_waiting_or_leaving_point(bus_coordinates_before, bus_coor
         return (distance, APPROACHING)
     else:
         return (distance, LEAVING)
-
-# <codecell>
 
 def find_distance_between_coordinates(bus_coordinates, target_location_coordinates):
     """
@@ -201,8 +178,6 @@ def find_distance_between_coordinates(bus_coordinates, target_location_coordinat
     distance = R * c
     return distance
 
-# <codecell>
-
 def poll_on_distance(approaching_buses, target_location_coordinates):
     """
     This function checks if the distance between bus and target location is less than ALERT_DISTANCE,
@@ -220,8 +195,6 @@ def poll_on_distance(approaching_buses, target_location_coordinates):
         else:
             print "Bus", colloquial_bus_number," is approaching and is at distance: ", distance
     return approaching_buses
-
-# <codecell>
 
 def get_all_bus_position(bus_number_list, target_location_coordinates):
     dict_bus_lat_lng_instance1 = get_coordinates_of_buses(bus_number_list)
@@ -241,8 +214,6 @@ def get_all_bus_position(bus_number_list, target_location_coordinates):
         if status[1] == APPROACHING:
             approaching_buses.append(bus)
     return dict_bus_position
-
-# <codecell>
 
 def get_colloquial_bus_numbers_from_actual_bus_numbers(DOUBLEMAP_CITY):
     """
@@ -274,8 +245,6 @@ def get_colloquial_bus_numbers_from_actual_bus_numbers(DOUBLEMAP_CITY):
             MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS[bus_number] = dict_actual_route_number_to_colloquial_route_number[route]
     return MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS
 
-# <codecell>
-
 def get_actual_bus_numbers(colloquial_bus_numbers, DOUBLEMAP_CITY):
     """
     This function takes in colloquial names for buses (routes) for example, route '6' or route '9' and returns lists
@@ -292,9 +261,6 @@ def get_actual_bus_numbers(colloquial_bus_numbers, DOUBLEMAP_CITY):
     list_actual_bus_numbers = find_actual_bus_numbers_for_actual_routes(set_actual_route_numbers, DOUBLEMAP_CITY)
     
     return list_actual_bus_numbers
-    
-
-# <codecell>
 
 def find_actual_bus_numbers_for_actual_routes(set_actual_route_numbers, DOUBLEMAP_CITY):
     """
@@ -322,8 +288,6 @@ def find_actual_bus_numbers_for_actual_routes(set_actual_route_numbers, DOUBLEMA
             list_actual_bus_numbers.append(bus_number)
     return list_actual_bus_numbers
 
-# <codecell>
-
 def find_routes_for_colloquial_bus_numbers(colloquial_bus_numbers, DOUBLEMAP_CITY):
     """
     Returns a dictionary with key as colloquial bus number and value as actual route numbers associated with it.
@@ -346,8 +310,6 @@ def find_routes_for_colloquial_bus_numbers(colloquial_bus_numbers, DOUBLEMAP_CIT
             dict_colloquial_bus_numbers[colloquial_route_name] = route['id']
                                
     return dict_colloquial_bus_numbers
-
-# <codecell>
 
 if __name__ == "__main__":
     #test if the API is working
@@ -382,13 +344,5 @@ if __name__ == "__main__":
 
     sys.exit(0)
 
-# <codecell>
-
-%tb
-
-# <codecell>
-
-
-# <codecell>
 
 
