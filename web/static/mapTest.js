@@ -12,11 +12,11 @@ function initialize() {
     }
     var map = new google.maps.Map(map_canvas, map_options);
 
-    google.maps.event.addListener(map, 'dblclick', function(event) {
+    google.maps.event.addListener(map, 'click', function(event) {
         //Get the position of clicked point
-        window.alert(event.latLng);
-        //window.location = event.latLng;
-        //TODO: why doesnt the event stop! x(
+        $.post( "/route", { lat:event.latLng.lat(), lng:event.latLng.lng()});
+        //TODO: why doesnt the event 'dblclick' stop propogating! x(
+        //That is because the zoom has been already triggered before this line is executed.
         event.stop();
     });
 }
