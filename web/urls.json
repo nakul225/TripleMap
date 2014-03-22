@@ -1,0 +1,19 @@
+{
+    "urls": {
+        "IUB": "http://bloomington.doublemap.com/map/v2/",
+        "NW": "http://northwestern.doublemap.com/map/v2/"
+    },
+    "coordinates": {
+        "IUB": 
+        {
+        	"Latitude": 39.171539306641,
+        	"Longitude":-86.512619018555
+        },
+        "NW": 
+        {
+        	"Latitude": 42.0549051148951,
+        	"Longitude": -87.6870495230669
+        }
+    }
+}
+                    

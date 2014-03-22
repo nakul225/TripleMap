@@ -36,10 +36,19 @@
         </script>-->
     </head>
     <body>
+        <label>University: </label>
+        <select onchange="changeCity(this, {{cities|tojson|safe}})">
+          {% for city in cities %}
+            <option>
+              {{ city }}
+            </option>
+          {% endfor %}
+        </select>
         <label>Address: </label>
         <input id="address" onkeydown="if (event.keyCode == 13) addMark()"></input>
         <label>Bus Number: </label>
         <input id="busNum"></input>
+        
         <div id="map_canvas"></div>
     </body>
 </html>
