@@ -1,2 +1,5 @@
 API_KEY
 API_KEY.*
+ipynb_checkpoints
+*.pyc
+*.log

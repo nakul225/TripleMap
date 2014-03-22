@@ -29,18 +29,15 @@ class BusOperations:
     MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS = {}
     
     #Map for colloquial bus number to route number
-    def create_colloquial_to_route(self):
-        if type(colloquial_bus_numbers) is not list:
-            logging.info('Invalid parameter for colloquial bus list!')
-            return None
-        else:
-            dict_coll_to_route = dict.fromkeys(colloquial_bus_numbers, 0)
+    def create_colloquial_to_route(self, colloquial_bus_numbers):
+        dict_coll_to_route = {}
 
-            dblmap_routes_uri = self.DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
-            routes = json.loads(urllib.urlopen(dblmap_routes_uri).read())
-            for route in routes:
-                dict_coll_to_route[route['short_name']] = route['id']
-            return dict_coll_to_route
+        dblmap_routes_uri = DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
+        routes = json.loads(urllib.urlopen(dblmap_routes_uri).read())
+        logging.info("In create_colloquial_to_route: routes:"+str(routes))
+        for route in routes:
+            dict_coll_to_route[route['short_name']] = route['id']
+        return dict_coll_to_route
 
     # Mapping between route number to actual number
     def create_route_to_actual(self):
@@ -61,12 +58,13 @@ class BusOperations:
         dict_colloquial_to_actual = {}
         bus_number_list = []
         route_list = []
-        map_colloquial_to_route = self.create_colloquial_to_route()
+        map_colloquial_to_route = self.create_colloquial_to_route(colloquial_bus_numbers)
         map_route_to_actual = self.create_route_to_actual()
         logging.info("In colloquial_to_actual: map_colloquial_to_route:"+str(map_colloquial_to_route))
         logging.info("In colloquial_to_actual: map_route_to_actual:"+str(map_route_to_actual))
+        logging.info("In colloquial_to_actual: colloquial_bus_numbers:"+str(colloquial_bus_numbers))
         for colloquial_bus in colloquial_bus_numbers:
-            dict_colloquial_to_actual[colloquial_bus] = self.map_route_to_actual[self.map_colloquial_to_route[colloquial_bus]]
+            dict_colloquial_to_actual[colloquial_bus] = map_route_to_actual[map_colloquial_to_route[colloquial_bus]]
         logging.info("In colloquial_to_actual: dict_colloquial_to_actual:"+str(dict_colloquial_to_actual))
         return dict_colloquial_to_actual
 
@@ -111,7 +109,8 @@ class BusOperations:
         isLatLng = True
         dict_all_buses_lat_lng = self.get_all_buses_status(isLatLng)
         dict_bus_lat_lng = {}
-        logging.info("In get_coordinates_of_buses: bus_number_list:"+str(bus_number_list))
+        actual_bus_number_list = self.colloquial_to_actual(bus_number_list).values()
+        logging.info("In get_coordinates_of_buses: actual_bus_number_list:"+str(actual_bus_number_list))
         for bus_number in bus_number_list:
             if bus_number in dict_all_buses_lat_lng:
                 dict_bus_lat_lng[bus_number] = (dict_all_buses_lat_lng[bus_number][0], dict_all_buses_lat_lng[bus_number][1])
