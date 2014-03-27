@@ -27,9 +27,10 @@ class BusOperations:
     LEAVING = 2
     ALERT_DISTANCE = 0.3
     MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS = {}
+    MAP_COLLOQUIAL_TO_ROUTE = {}
     
     #Map for colloquial bus number to route number
-    def create_colloquial_to_route(self, colloquial_bus_numbers):
+    def create_colloquial_to_route(self):
         dict_coll_to_route = {}
 
         dblmap_routes_uri = DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
@@ -58,13 +59,13 @@ class BusOperations:
         dict_colloquial_to_actual = {}
         bus_number_list = []
         route_list = []
-        map_colloquial_to_route = self.create_colloquial_to_route(colloquial_bus_numbers)
+        
+        #map_colloquial_to_route = self.create_colloquial_to_route(colloquial_bus_numbers) #Created a global variable since this function needs to be called only once as data doesn't change every hour
         map_route_to_actual = self.create_route_to_actual()
-        logging.info("\nIn colloquial_to_actual: map_colloquial_to_route:"+str(map_colloquial_to_route))
         logging.info("In colloquial_to_actual: map_route_to_actual:"+str(map_route_to_actual))
         logging.info("In colloquial_to_actual: colloquial_bus_numbers:"+str(colloquial_bus_numbers))
         for colloquial_bus in colloquial_bus_numbers:
-            dict_colloquial_to_actual[colloquial_bus] = map_route_to_actual[map_colloquial_to_route[colloquial_bus]]
+            dict_colloquial_to_actual[colloquial_bus] = map_route_to_actual[self.MAP_COLLOQUIAL_TO_ROUTE[colloquial_bus]]
         logging.info("In colloquial_to_actual: dict_colloquial_to_actual:"+str(dict_colloquial_to_actual))
         return dict_colloquial_to_actual
 
@@ -111,9 +112,13 @@ class BusOperations:
         dict_bus_lat_lng = {}
         actual_bus_number_list = self.colloquial_to_actual(bus_number_list).values()
         logging.info("\nIn get_coordinates_of_buses: actual_bus_number_list:"+str(actual_bus_number_list))
-        for bus_number in bus_number_list:
-            if bus_number in dict_all_buses_lat_lng:
-                dict_bus_lat_lng[bus_number] = (dict_all_buses_lat_lng[bus_number][0], dict_all_buses_lat_lng[bus_number][1])
+        #print "dict_all_buses_lat_lng: ",dict_all_buses_lat_lng
+        #print "actual_bus_number_list: ",actual_bus_number_list
+        for actual_bus_numbers_per_colloquial_bus_number in actual_bus_number_list:
+            for bus_number in  actual_bus_numbers_per_colloquial_bus_number:
+                #print "bus_number: ",bus_number
+                if bus_number in dict_all_buses_lat_lng:
+                    dict_bus_lat_lng[bus_number] = (dict_all_buses_lat_lng[bus_number][0], dict_all_buses_lat_lng[bus_number][1])
         logging.info("In get_coordinates_of_buses: dict_bus_lat_lng:"+str(dict_bus_lat_lng))
         return dict_bus_lat_lng
 
@@ -170,26 +175,32 @@ class BusOperations:
         logging.info("\nIn find_distance_between_coordinates: distance:"+str(distance))
         return distance
 
-    def poll_on_distance(self, approaching_buses, target_location_coordinates):
+    def poll_on_distance(self, colloquialBusNumbersList, target_location_coordinates):
         """
         This function checks if the distance between bus and target location is less than ALERT_DISTANCE,
         and alerts the user accordingly.
         """
-        dict_bus_distance = self.get_bus_distance(approaching_buses, target_location_coordinates)
+        dict_bus_distance = self.get_bus_distance(colloquialBusNumbersList, target_location_coordinates)
         logging.info("\nIn poll_on_distance: dict_bus_distance:"+str(dict_bus_distance))
+        approaching_buses = [] #return list of buses that are approaching
         for bus, distance in dict_bus_distance.iteritems():
             colloquial_bus_number = self.MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS[bus]
+            #print "bus: ",colloquial_bus_number
+            #print "self.ALERT_DISTANCE: ",self.ALERT_DISTANCE
+            #print "distance: ",distance
+            
             if distance < self.ALERT_DISTANCE:
                 # ALERT user
                 logging.info("In poll_on_distance: Alert for bus: colloquial_bus_number:"+str(colloquial_bus_number))
-                print "Alert for bus ", colloquial_bus_number
+                print "Alert for bus ", colloquial_bus_number,
                 # remove the bus from list for which user has been alerted.
-                approaching_buses.remove(bus)
+                approaching_buses.append(bus)
             else:
-                bus_distance_string= "Bus"+str(colloquial_bus_number)+" is approaching and is at distance: "+ str(distance)
+                bus_distance_string= "Bus "+str(colloquial_bus_number)+" is approaching and is at distance: "+ str(distance)
                 logging.info("In poll_on_distance: Alert for bus: colloquial_bus_number:"+bus_distance_string)
                 print bus_distance_string
         logging.info("In poll_on_distance: approaching_buses:"+str(approaching_buses))
+        #print approaching_buses
         return approaching_buses
 
     def get_all_bus_position(self, bus_number_list, target_location_coordinates):
@@ -309,13 +320,18 @@ class BusOperations:
         self.ALERT_DISTANCE = alertDistance
         #Create map of colloquial bus numbers to actual bus numbers
         self.get_colloquial_bus_numbers_from_actual_bus_numbers()
-        #Enable logging
+        self.MAP_COLLOQUIAL_TO_ROUTE = self.create_colloquial_to_route()
         logging.info("\nIn constructor: parameters: DOUBLEMAP_CITY :"+doublemapCity+" ALERT_DISTANCE:"+str(alertDistance))
+        logging.info("\nIn colloquial_to_actual: map_colloquial_to_route:"+str(self.MAP_COLLOQUIAL_TO_ROUTE))
         
-def run(doublemapCityName, alertDistance, colloquialBusNumbersList, targetLocationCoordinates):
+def run(doublemapCityName, alertDistance, colloquialBusNumbersList, targetLocationCoordinates, enableLoggingFlag=False):
     """
     The function that takes input from user interface and calls above functions to get bus status and send alerts.
+    Actually, have write this function in the flask application
     """
+    #Enable logging
+    if enableLoggingFlag:
+        logging.basicConfig(filename=datetime.now().strftime('logfile_%H_%M_%d_%m_%Y.log'),level=logging.DEBUG)
     #test if the API is working
     busOperationsObj = BusOperations(doublemapCityName, alertDistance)
     if busOperationsObj.test_get_all_buses_status():
@@ -324,14 +340,18 @@ def run(doublemapCityName, alertDistance, colloquialBusNumbersList, targetLocati
         logging.warn("\nSomething seems to be wrong with accessing code of Doublemap API")
     bus_number_list = busOperationsObj.get_actual_bus_numbers(colloquialBusNumbersList)
     logging.info("Input buses list by user:"+str(colloquialBusNumbersList))
+    
+    #Have this while loop in the flask application 
     while True:
         time.sleep(2)
         bus_number_list = busOperationsObj.poll_on_distance(colloquialBusNumbersList, targetLocationCoordinates)
-        print "Distance: \n"
+        
+        
         if len(bus_number_list) == 0:
             print "No Bus Running"
             logging.warn("None of the input buses are running, exiting")
             sys.exit(0)
+        
         logging.info("************************************************************************")
     sys.exit(0)
 
@@ -339,8 +359,7 @@ if __name__ == "__main__":
     """
     call run()
     """
-    logging.basicConfig(filename=datetime.now().strftime('logfile_%H_%M_%d_%m_%Y.log'),level=logging.DEBUG)
     #run("NORTHWESTERN",0.3,['CL','EL'],(42.0549051148951, -87.6870495230669))
-    run("BLOOMINGTON_TRANSIT",0.3,['6L'],(39.17155659473131, -86.50890111923218))
+    run("BLOOMINGTON_TRANSIT",0.3,['6L','6'],(39.17155659473131, -86.50890111923218),False)
     
 
