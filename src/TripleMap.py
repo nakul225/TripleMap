@@ -34,7 +34,7 @@ class BusOperations:
 
         dblmap_routes_uri = DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
         routes = json.loads(urllib.urlopen(dblmap_routes_uri).read())
-        logging.info("In create_colloquial_to_route: routes:"+str(routes))
+        logging.info("\nIn create_colloquial_to_route: routes:"+str(routes))
         for route in routes:
             dict_coll_to_route[route['short_name']] = route['id']
         return dict_coll_to_route
@@ -43,7 +43,7 @@ class BusOperations:
     def create_route_to_actual(self):
         all_buses = self.get_all_buses_status()
         dict_route_to_actual = {}
-        logging.info("In create_route_to_actual: all_buses:"+str(all_buses))
+        logging.info("\nIn create_route_to_actual: all_buses:"+str(all_buses))
         for bus in all_buses:
                 dict_route_to_actual.setdefault(bus['route'], []).append(bus['id'])
         logging.info("In create_route_to_actual: dict_route_to_actual:"+str(dict_route_to_actual))
@@ -60,7 +60,7 @@ class BusOperations:
         route_list = []
         map_colloquial_to_route = self.create_colloquial_to_route(colloquial_bus_numbers)
         map_route_to_actual = self.create_route_to_actual()
-        logging.info("In colloquial_to_actual: map_colloquial_to_route:"+str(map_colloquial_to_route))
+        logging.info("\nIn colloquial_to_actual: map_colloquial_to_route:"+str(map_colloquial_to_route))
         logging.info("In colloquial_to_actual: map_route_to_actual:"+str(map_route_to_actual))
         logging.info("In colloquial_to_actual: colloquial_bus_numbers:"+str(colloquial_bus_numbers))
         for colloquial_bus in colloquial_bus_numbers:
@@ -79,7 +79,7 @@ class BusOperations:
         dict_bus_lat_lng = {}
         doublemap_buses_url = DOUBLEMAP_BUSES_API_URL[self.DOUBLEMAP_CITY] 
         response = json.loads(urllib.urlopen(doublemap_buses_url).read())
-        logging.info("In get_all_buses_status: response:"+str(response))
+        logging.info("\nIn get_all_buses_status: response:"+str(response))
         if len(response) == 0:
             logging.warn("In get_all_buses_status: Something went wrong while getting status of each bus, exiting")
             sys.exit(0)
@@ -110,7 +110,7 @@ class BusOperations:
         dict_all_buses_lat_lng = self.get_all_buses_status(isLatLng)
         dict_bus_lat_lng = {}
         actual_bus_number_list = self.colloquial_to_actual(bus_number_list).values()
-        logging.info("In get_coordinates_of_buses: actual_bus_number_list:"+str(actual_bus_number_list))
+        logging.info("\nIn get_coordinates_of_buses: actual_bus_number_list:"+str(actual_bus_number_list))
         for bus_number in bus_number_list:
             if bus_number in dict_all_buses_lat_lng:
                 dict_bus_lat_lng[bus_number] = (dict_all_buses_lat_lng[bus_number][0], dict_all_buses_lat_lng[bus_number][1])
@@ -130,7 +130,7 @@ class BusOperations:
         dict_bus_distance = {}
         for bus, latLng in dict_bus_lat_lng.iteritems():
             dict_bus_distance[bus] = self.find_distance_between_coordinates(latLng, target_location_coordinates)
-        logging.info("In get_bus_distance: dict_bus_distance:"+str(dict_bus_distance))
+        logging.info("\nIn get_bus_distance: dict_bus_distance:"+str(dict_bus_distance))
         return dict_bus_distance
 
     def is_bus_approaching_waiting_or_leaving_point(self, bus_coordinates_before, bus_coordinates_later, target_location_coordinates):
@@ -143,7 +143,7 @@ class BusOperations:
         distance_before = self.find_distance_between_coordinates(bus_coordinates_before, target_location_coordinates)
         distance_later = self.find_distance_between_coordinates(bus_coordinates_later, target_location_coordinates)
         distance = distance_before - distance_later
-        logging.info("In is_bus_approaching_waiting_or_leaving_point: distance:"+str(distance))
+        logging.info("\nIn is_bus_approaching_waiting_or_leaving_point: distance:"+str(distance))
         if distance == 0:
             return (distance, self.STOPPED)
         elif distance > 0:
@@ -167,7 +167,7 @@ class BusOperations:
         a = (sin(dlat/2))**2 + cos(lat1) * cos(lat2) * (sin(dlon/2))**2
         c = 2 * atan2(sqrt(a), sqrt(1-a))
         distance = R * c
-        logging.info("In find_distance_between_coordinates: distance:"+str(distance))
+        logging.info("\nIn find_distance_between_coordinates: distance:"+str(distance))
         return distance
 
     def poll_on_distance(self, approaching_buses, target_location_coordinates):
@@ -176,7 +176,7 @@ class BusOperations:
         and alerts the user accordingly.
         """
         dict_bus_distance = self.get_bus_distance(approaching_buses, target_location_coordinates)
-        logging.info("In poll_on_distance: dict_bus_distance:"+str(dict_bus_distance))
+        logging.info("\nIn poll_on_distance: dict_bus_distance:"+str(dict_bus_distance))
         for bus, distance in dict_bus_distance.iteritems():
             colloquial_bus_number = self.MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS[bus]
             if distance < self.ALERT_DISTANCE:
@@ -206,7 +206,7 @@ class BusOperations:
                 dict_bus_lat_lng_instance2[bus], target_location_coordinates)
             if status[1] == APPROACHING:
                 approaching_buses.append(bus)
-        logging.info("In get_all_bus_position: dict_bus_position:"+str(dict_bus_position))
+        logging.info("\nIn get_all_bus_position: dict_bus_position:"+str(dict_bus_position))
         return dict_bus_position
 
     def get_colloquial_bus_numbers_from_actual_bus_numbers(self):
@@ -234,7 +234,7 @@ class BusOperations:
             route = dict_actual_bus_number_actual_route_number[bus_number]
             if route in dict_actual_route_number_to_colloquial_route_number:
                 self.MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS[bus_number] = dict_actual_route_number_to_colloquial_route_number[route]
-        logging.info("In get_colloquial_bus_numbers_from_actual_bus_numbers: MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS:"+str(self.MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS))
+        logging.info("\nIn get_colloquial_bus_numbers_from_actual_bus_numbers: MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS:"+str(self.MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS))
         return self.MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS
 
     def get_actual_bus_numbers(self, colloquial_bus_numbers):
@@ -250,7 +250,7 @@ class BusOperations:
         set_actual_route_numbers = set(dict_actual_route_numbers.values())
         #Task 2: Find actual bus numbers running on the actual route numbers found in above step
         list_actual_bus_numbers = self.find_actual_bus_numbers_for_actual_routes(set_actual_route_numbers)
-        logging.info("In get_actual_bus_numbers: set_actual_route_numbers:"+str(set_actual_route_numbers))
+        logging.info("\nIn get_actual_bus_numbers: set_actual_route_numbers:"+str(set_actual_route_numbers))
         logging.info("In get_actual_bus_numbers: list_actual_bus_numbers :"+str(list_actual_bus_numbers ))
         return list_actual_bus_numbers
 
@@ -261,7 +261,7 @@ class BusOperations:
         list_actual_bus_numbers = []
         doublemap_buses_url = DOUBLEMAP_BUSES_API_URL[self.DOUBLEMAP_CITY] 
         response = json.loads(urllib.urlopen(doublemap_buses_url).read())
-        logging.info("In find_actual_bus_numbers_for_actual_routes: response :"+str(response))
+        logging.info("\nIn find_actual_bus_numbers_for_actual_routes: response :"+str(response))
         if len(response) == 0:
             logging.warn("Something went wrong while getting status of each bus")
             sys.exit(0)
@@ -298,7 +298,7 @@ class BusOperations:
             #If the user is looking for buses on this particular route, fetch the actual route number 
             if colloquial_route_name in set_colloquial_bus_numbers:
                 dict_colloquial_bus_numbers[colloquial_route_name] = route['id']
-        logging.info("In find_routes_for_colloquial_bus_numbers: dict_colloquial_bus_numbers :"+str(dict_colloquial_bus_numbers))
+        logging.info("\nIn find_routes_for_colloquial_bus_numbers: dict_colloquial_bus_numbers :"+str(dict_colloquial_bus_numbers))
         return dict_colloquial_bus_numbers
     
     def __init__(self, doublemapCity, alertDistance):
@@ -310,7 +310,7 @@ class BusOperations:
         #Create map of colloquial bus numbers to actual bus numbers
         self.get_colloquial_bus_numbers_from_actual_bus_numbers()
         #Enable logging
-        logging.info("In constructor: parameters: DOUBLEMAP_CITY :"+doublemapCity+" ALERT_DISTANCE:"+str(alertDistance))
+        logging.info("\nIn constructor: parameters: DOUBLEMAP_CITY :"+doublemapCity+" ALERT_DISTANCE:"+str(alertDistance))
         
 def run(doublemapCityName, alertDistance, colloquialBusNumbersList, targetLocationCoordinates):
     """
@@ -319,9 +319,9 @@ def run(doublemapCityName, alertDistance, colloquialBusNumbersList, targetLocati
     #test if the API is working
     busOperationsObj = BusOperations(doublemapCityName, alertDistance)
     if busOperationsObj.test_get_all_buses_status():
-        logging.info("Code accessing Doublemap API is working correctly")
+        logging.info("\nCode accessing Doublemap API is working correctly")
     else:
-        logging.warn("Something seems to be wrong with accessing code of Doublemap API")
+        logging.warn("\nSomething seems to be wrong with accessing code of Doublemap API")
     bus_number_list = busOperationsObj.get_actual_bus_numbers(colloquialBusNumbersList)
     logging.info("Input buses list by user:"+str(colloquialBusNumbersList))
     while True:
@@ -332,6 +332,7 @@ def run(doublemapCityName, alertDistance, colloquialBusNumbersList, targetLocati
             print "No Bus Running"
             logging.warn("None of the input buses are running, exiting")
             sys.exit(0)
+        logging.info("************************************************************************")
     sys.exit(0)
 
 if __name__ == "__main__":
@@ -339,5 +340,7 @@ if __name__ == "__main__":
     call run()
     """
     logging.basicConfig(filename=datetime.now().strftime('logfile_%H_%M_%d_%m_%Y.log'),level=logging.DEBUG)
-    run("NORTHWESTERN",0.3,['CL','EL'],(42.0549051148951, -87.6870495230669))
+    #run("NORTHWESTERN",0.3,['CL','EL'],(42.0549051148951, -87.6870495230669))
+    run("BLOOMINGTON_TRANSIT",0.3,['6L'],(39.17155659473131, -86.50890111923218))
+    
 
