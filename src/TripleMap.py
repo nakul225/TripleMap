@@ -11,6 +11,9 @@ from pprint import pprint
 import time
 import logging
 from datetime import datetime
+from Bus import *
+from Route import *
+from BusOperations import *
 
 DOUBLEMAP_BUSES_API_URL = {
                     "BLOOMINGTON_TRANSIT":"http://bloomington.doublemap.com/map/v2/buses",
@@ -29,7 +32,7 @@ class BusOperations:
     MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS = {}
     MAP_COLLOQUIAL_TO_ROUTE = {}
     
-    #Map for colloquial bus number to route number
+    #Map for colloquial route number to actual route number
     def create_colloquial_to_route(self):
         dict_coll_to_route = {}
 
@@ -203,22 +206,6 @@ class BusOperations:
         #print approaching_buses
         return approaching_buses
 
-    def get_all_bus_position(self, bus_number_list, target_location_coordinates):
-        dict_bus_lat_lng_instance1 = self.get_coordinates_of_buses(bus_number_list)
-        time.sleep(2)
-        dict_bus_lat_lng_instance2 = self.get_coordinates_of_buses(bus_number_list)
-        # get all the approaching buses
-        approaching_buses = []
-        dict_bus_position = {}
-        for bus, latLng in dict_bus_lat_lng_instance1.iteritems():
-            dict_bus_position[bus] = self.is_bus_approaching_waiting_or_leaving_point(dict_bus_lat_lng_instance1[bus], \
-                dict_bus_lat_lng_instance2[bus], target_location_coordinates)
-            status = self.is_bus_approaching_waiting_or_leaving_point(dict_bus_lat_lng_instance1[bus], \
-                dict_bus_lat_lng_instance2[bus], target_location_coordinates)
-            if status[1] == APPROACHING:
-                approaching_buses.append(bus)
-        logging.info("\nIn get_all_bus_position: dict_bus_position:"+str(dict_bus_position))
-        return dict_bus_position
 
     def get_colloquial_bus_numbers_from_actual_bus_numbers(self):
         """
@@ -311,7 +298,7 @@ class BusOperations:
                 dict_colloquial_bus_numbers[colloquial_route_name] = route['id']
         logging.info("\nIn find_routes_for_colloquial_bus_numbers: dict_colloquial_bus_numbers :"+str(dict_colloquial_bus_numbers))
         return dict_colloquial_bus_numbers
-    
+####    
     def __init__(self, doublemapCity, alertDistance):
         """
         constructor
@@ -354,12 +341,62 @@ def run(doublemapCityName, alertDistance, colloquialBusNumbersList, targetLocati
         
         logging.info("************************************************************************")
     sys.exit(0)
-
+####################################################################################################################################################################3
+class TripleMap:
+    """
+    This class makes use of all data providing classes and puts up the show together.
+    """
+    STOPPED = 0
+    APPROACHING = 1
+    LEAVING = 2
+    ALERT_DISTANCE = 0.3
+    
+    listOfBuses = [] #stores all bus objects that contain information about each bus
+    
+    def getlistOfBuses(self):
+        return self.listOfBuses
+        
+    def __init__(self, routeObject, constantsObject, busOperationsObject, doublemapCity, alertDistance):
+        self.DOUBLEMAP_CITY = doublemapCity
+        self.ALERT_DISTANCE = alertDistance
+        
+        #Create map of colloquial bus numbers to actual bus numbers
+        self.get_colloquial_bus_numbers_from_actual_bus_numbers()
+        self.MAP_COLLOQUIAL_TO_ROUTE = self.create_colloquial_to_route()
+        
+        
+        
+        logging.info("\nIn constructor: parameters: DOUBLEMAP_CITY :"+doublemapCity+" ALERT_DISTANCE:"+str(alertDistance))
+        logging.info("\nIn colloquial_to_actual: map_colloquial_to_route:"+str(self.MAP_COLLOQUIAL_TO_ROUTE))
+        
+    
+#####################################################################################################################################################################3
 if __name__ == "__main__":
     """
     call run()
     """
     #run("NORTHWESTERN",0.3,['CL','EL'],(42.0549051148951, -87.6870495230669))
-    run("BLOOMINGTON_TRANSIT",0.3,['6L','6'],(39.17155659473131, -86.50890111923218),False)
+    #run("BLOOMINGTON_TRANSIT",0.3,['6L','6'],(39.17155659473131, -86.50890111923218),False)
     
-
+    doublemapCity = "BLOOMINGTON_TRANSIT"
+    alertDistance = 0.1
+    userColloquialBusList = ['6L','6']
+    targetCoordinates = (39.17155659473131, -86.50890111923218)
+    routeObj = Route()
+    constantsObj = Constants()
+    busOperationsObj = BusOperations()
+    tripleMapObj = TripleMap(routeObj, constantsObj, busOperationsObj, doublemapCity, alertDistance)
+    
+    #First initiate all buses with bus objects
+    actualBusNumbersList = busOperationsObj.convert_colloquial_bus_number_to_actual_bus_number( userColloquialBusList )
+    for actualBusNumber in actualBusNumbersList:
+        bus = Bus()
+        bus.colloquial_number = colloquialBusNumber
+        tripleMapObj.listOfBuses.append(bus)
+    
+    while(True):
+        #get current coordinates of each bus
+        dictActualBusNumberToCoordinatesLatLng = busOperationsObj.get_coordinates_of_buses( tripleMapObj.getlistOfBuses() )
+        #update each buses status
+        for eachBus in tripleMapObj.listOfBuses
+            

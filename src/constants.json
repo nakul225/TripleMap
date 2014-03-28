@@ -1,0 +1,7 @@
+{ "DOUBLEMAP_BUSES_API_URL" : { "BLOOMINGTON_TRANSIT" : "http://bloomington.doublemap.com/map/v2/buses",
+      "NORTHWESTERN" : "http://northwestern.doublemap.com/map/v2/buses"
+    },
+  "DOUBLEMAP_ROUTES_API_URL" : { "BLOOMINGTON_TRANSIT" : "http://bloomington.doublemap.com/map/v2/routes",
+      "NORTHWESTERN" : "http://northwestern.doublemap.com/map/v2/routes"
+    }
+}
