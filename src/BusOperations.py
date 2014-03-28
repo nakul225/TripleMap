@@ -45,7 +45,7 @@ class BusOperations:
     """
     dict_all_buses_lat_lng = self.get_all_buses_status()
     dict_bus_lat_lng = {}
-    #actual_bus_number_list = self.convert_colloquial_bus_number_to_actual_bus_number(bus_number_list).values()
+    actual_bus_number_list = self.convert_colloquial_bus_number_to_actual_bus_number(bus_number_list).values()
     logging.info("\nIn get_coordinates_of_buses: actual_bus_number_list:"+str(actual_bus_number_list))
     #print "dict_all_buses_lat_lng: ",dict_all_buses_lat_lng
     #print "actual_bus_number_list: ",actual_bus_number_list
@@ -57,7 +57,7 @@ class BusOperations:
     logging.info("In get_coordinates_of_buses: dict_bus_lat_lng:"+str(dict_bus_lat_lng))
     return dict_bus_lat_lng
 
-    def convert_colloquial_bus_number_to_actual_bus_number(self,colloquial_bus_numbers):
+    def convert_colloquial_bus_number_to_actual_bus_number(self, colloquial_bus_numbers, routeObj):
         """
         The route numbers and actual bus numbers change daily from Transport service provider. 
         This function creates a map of colloquial numbers to route number and then gets the actual bus numbers on these routes

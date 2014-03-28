@@ -17,7 +17,7 @@ class Route:
     map_actual_bus_numbers_to_colloquial_bus_numbers = {}
     map_colloquial_route_numbers_to_actual_route_numbers = {}
     
-    #Map for colloquial route number to route number
+    #Map for colloquial route number to actual route number
     def create_dict_colloquial_route_numbers_to_actual_route_numbers(self):
         dict_coll_to_route = {}
 

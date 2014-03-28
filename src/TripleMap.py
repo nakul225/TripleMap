@@ -387,8 +387,12 @@ if __name__ == "__main__":
     busOperationsObj = BusOperations()
     tripleMapObj = TripleMap(routeObj, constantsObj, busOperationsObj, doublemapCity, alertDistance)
     
-    #First initiate all buses with bus objects
-    actualBusNumbersList = busOperationsObj.convert_colloquial_bus_number_to_actual_bus_number( userColloquialBusList )
+    #Get a route obj and create all maps
+    routeObj.create_dict_colloquial_route_numbers_to_actual_route_numbers()
+    routeObj.create_dict_actual_route_number_to_actual_bus_numbers_running_on_it()
+    
+    #First initiate all  bus objects
+    actualBusNumbersList = busOperationsObj.convert_colloquial_bus_number_to_actual_bus_number( userColloquialBusList, routeObj )
     for actualBusNumber in actualBusNumbersList:
         bus = Bus()
         bus.colloquial_number = colloquialBusNumber
@@ -398,5 +402,6 @@ if __name__ == "__main__":
         #get current coordinates of each bus
         dictActualBusNumberToCoordinatesLatLng = busOperationsObj.get_coordinates_of_buses( tripleMapObj.getlistOfBuses() )
         #update each buses status
-        for eachBus in tripleMapObj.listOfBuses
+        for eachBus in tripleMapObj.getlistOfBuses():
+            
             
