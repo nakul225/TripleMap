@@ -7,39 +7,18 @@ from pprint import pprint
 import time
 import logging
 from datetime import datetime
-    
+DOUBLEMAP_ROUTES_API_URL = 'http://bloomington.doublemap.com/map/v2/routes'
+DOUBLEMAP_BUSES_API_URL = 'http://bloomington.doublemap.com/map/v2/buses'
 class Route:
     """
     Has a map of routes in the city: which buses are running, what are the stops on each route, path
     """
+    
+    DOUBLEMAP_CITY = "BLOOMINGTON_TRANSIT"
 
     #variables    
     map_actual_bus_numbers_to_colloquial_bus_numbers = {}
     map_colloquial_route_numbers_to_actual_route_numbers = {}
-    
-    #Map for colloquial route number to actual route number
-    def create_dict_colloquial_route_numbers_to_actual_route_numbers(self):
-        dict_coll_to_route = {}
-
-        dblmap_routes_uri = DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
-        routes = json.loads(urllib.urlopen(dblmap_routes_uri).read())
-        logging.info("\nIn create_colloquial_to_route: routes:"+str(routes))
-        for route in routes:
-            dict_coll_to_route[route['short_name']] = route['id']
-        #save the values in class variable
-        self.map_colloquial_to_route = dict_coll_to_route
-
-    # Mapping between route number to actual number
-    def create_dict_actual_route_number_to_actual_bus_numbers_running_on_it(self):
-        all_buses = self.get_all_buses_status()
-        dict_route_to_actual = {}
-        logging.info("\nIn create_route_to_actual: all_buses:"+str(all_buses))
-        for bus in all_buses:
-                dict_route_to_actual.setdefault(bus['route'], []).append(bus['id'])
-        logging.info("In create_route_to_actual: dict_route_to_actual:"+str(dict_route_to_actual))
-        
-        self.map_colloquial_to_route = 
-        return dict_route_to_actual
 
     # This procedure uses routes to find colloquial to actual bus numbers and so kept in Route class
     def get_colloquial_bus_numbers_from_actual_bus_numbers(self):
@@ -93,14 +72,14 @@ class Route:
         This function returns the actual bus numbers by using actual route numbers
         """
         list_actual_bus_numbers = []
-        doublemap_buses_url = DOUBLEMAP_BUSES_API_URL[self.DOUBLEMAP_CITY] 
+        doublemap_buses_url = DOUBLEMAP_BUSES_API_URL
         response = json.loads(urllib.urlopen(doublemap_buses_url).read())
         logging.info("\nIn find_actual_bus_numbers_for_actual_routes: response :"+str(response))
         if len(response) == 0:
             logging.warn("Something went wrong while getting status of each bus")
             sys.exit(0)
         for bus in response:
-            bus_number = bus['id']
+            bus_number = bus['name']
             lat = bus['lat']
             lng = bus['lon']
             route = bus['route']
@@ -123,7 +102,7 @@ class Route:
             OUPUT:
                 dict_colloquial_bus_numbers = {u'9': 1001555, u'3': 1001536, u'5': 1001543, u'6': 1001546}
         """
-        doublemap_routes_url = DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
+        doublemap_routes_url = DOUBLEMAP_ROUTES_API_URL
         response = json.loads(urllib.urlopen(doublemap_routes_url).read())
         set_colloquial_bus_numbers = set(colloquial_bus_numbers)
         dict_colloquial_bus_numbers = {} #This would store mapping of colloquial bus number to their actual route numbers
