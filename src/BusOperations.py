@@ -9,10 +9,18 @@ import logging
 from datetime import datetime
 from Bus import *
 from Route import *
-DOUBLEMAP_BUSES_API_URL = 'http://bloomington.doublemap.com/map/v2/buses'
-DOUBLEMAP_CITY = "BLOOMINGTON_TRANSIT"
+from constants import *
 
 class BusOperations:
+    DOUBLEMAP_CITY = ""
+    DOUBLEMAP_ROUTES_API_URL=""
+    DOUBLEMAP_BUSES_API_URL=""
+    
+    def __init__(self, constants, city):
+        self.DOUBLEMAP_CITY = city
+        self.DOUBLEMAP_ROUTES_API_URL = constants.DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
+        self.DOUBLEMAP_BUSES_API_URL = constants.DOUBLEMAP_BUSES_API_URL[self.DOUBLEMAP_CITY]
+
     """
     Has all operations to work with data related to buses and routes
     """   
@@ -21,7 +29,7 @@ class BusOperations:
         This function updates all bus statuses
         """
         dict_bus_lat_lng = {}
-        doublemap_buses_url = DOUBLEMAP_BUSES_API_URL
+        doublemap_buses_url = self.DOUBLEMAP_BUSES_API_URL
         response = json.loads(urllib.urlopen(doublemap_buses_url).read())
         logging.info("\nIn get_all_buses_status: response:"+str(response))
         if len(response) == 0:
@@ -39,35 +47,5 @@ class BusOperations:
                     #Save current coordinates of the bus
                     bus.set_bus_current_lat_lng((eachBus['lat'],eachBus['lon']) )
         
-    
         return listOfBusObjects
     
-if __name__ == "__main__":
-    #Create bus operations object
-    busOperationsObject = BusOperations()
-    #Create route object
-    routeObject = Route()
-    #Make a list of bus objects
-    listColloquialBusNumbers = ['6','9','3']
-    listOfActualBusNumbers = routeObject.get_actual_bus_numbers(listColloquialBusNumbers)
-    print "Colloquial no:",listColloquialBusNumbers
-    print "Actual nos:",listOfActualBusNumbers
-    #Create bus objects
-    listOfBusObjects = [] #Stores list of all bus objects
-    for actualNumber in listOfActualBusNumbers:
-        busObject = Bus()
-        busObject.set_actual_number(actualNumber)
-        listOfBusObjects.append(busObject)
-    
-    #target location coordinates
-    targetCoordinates = (39.17155659473131, -86.50890111923218)
-    
-    while True:
-        time.sleep(2) #sleep for 2 second before updating status of each bus
-        listOfBusObjects = busOperationsObject.updateBusStatus(listOfBusObjects)
-        #check which buses are approaching, then track them or show them or whatever
-        for bus in listOfBusObjects:
-            print bus.get_actual_number()," :",bus.busMovementAgainstTarget(targetCoordinates)
-        
-        
-

@@ -7,14 +7,19 @@ from pprint import pprint
 import time
 import logging
 from datetime import datetime
-DOUBLEMAP_ROUTES_API_URL = 'http://bloomington.doublemap.com/map/v2/routes'
-DOUBLEMAP_BUSES_API_URL = 'http://bloomington.doublemap.com/map/v2/buses'
+
 class Route:
     """
     Has a map of routes in the city: which buses are running, what are the stops on each route, path
     """
+    DOUBLEMAP_CITY = ""
+    DOUBLEMAP_ROUTES_API_URL=""
+    DOUBLEMAP_BUSES_API_URL=""
     
-    DOUBLEMAP_CITY = "BLOOMINGTON_TRANSIT"
+    def __init__(self, constants, city):
+        self.DOUBLEMAP_CITY = city
+        self.DOUBLEMAP_ROUTES_API_URL = constants.DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
+        self.DOUBLEMAP_BUSES_API_URL = constants.DOUBLEMAP_BUSES_API_URL[self.DOUBLEMAP_CITY]
 
     #variables    
     map_actual_bus_numbers_to_colloquial_bus_numbers = {}
@@ -26,14 +31,14 @@ class Route:
         used to update MAP_ACUTAL_TO_COLLOQUIAL_BUS_NUMBERS
         """
         #Fetch all buses data
-        doublemap_buses_url = DOUBLEMAP_BUSES_API_URL[self.DOUBLEMAP_CITY] 
+        doublemap_buses_url = self.DOUBLEMAP_BUSES_API_URL  
         response_buses = json.loads(urllib.urlopen(doublemap_buses_url).read())
         #Fetch all routes data
-        doublemap_routes_url = DOUBLEMAP_ROUTES_API_URL[self.DOUBLEMAP_CITY]
+        doublemap_routes_url = self.DOUBLEMAP_ROUTES_API_URL
         response_routes = json.loads(urllib.urlopen(doublemap_routes_url).read())
         dict_actual_bus_number_actual_route_number = {}
         for bus in response_buses:
-            bus_number = bus['id']
+            bus_number = bus['name']
             route = bus['route']
             dict_actual_bus_number_actual_route_number[bus_number] = route
         dict_actual_route_number_to_colloquial_route_number = {}
@@ -72,7 +77,7 @@ class Route:
         This function returns the actual bus numbers by using actual route numbers
         """
         list_actual_bus_numbers = []
-        doublemap_buses_url = DOUBLEMAP_BUSES_API_URL
+        doublemap_buses_url = self.DOUBLEMAP_BUSES_API_URL
         response = json.loads(urllib.urlopen(doublemap_buses_url).read())
         logging.info("\nIn find_actual_bus_numbers_for_actual_routes: response :"+str(response))
         if len(response) == 0:
@@ -102,7 +107,7 @@ class Route:
             OUPUT:
                 dict_colloquial_bus_numbers = {u'9': 1001555, u'3': 1001536, u'5': 1001543, u'6': 1001546}
         """
-        doublemap_routes_url = DOUBLEMAP_ROUTES_API_URL
+        doublemap_routes_url = self.DOUBLEMAP_ROUTES_API_URL
         response = json.loads(urllib.urlopen(doublemap_routes_url).read())
         set_colloquial_bus_numbers = set(colloquial_bus_numbers)
         dict_colloquial_bus_numbers = {} #This would store mapping of colloquial bus number to their actual route numbers

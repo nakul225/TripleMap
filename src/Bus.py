@@ -8,10 +8,16 @@ import time
 import logging
 from datetime import datetime
 
-DOUBLEMAP_BUSES_API_URL = 'http://bloomington.doublemap.com/map/v2/buses'
-DOUBLEMAP_CITY = "BLOOMINGTON_TRANSIT"
-
 class Bus:
+    APPROACHING = 0
+    STOPPED = 0
+    LEAVING = 0
+
+    def __init__(self, constantsObject):
+        self.APPROACHING = constantsObject.APPROACHING
+        self.STOPPED = constantsObject.STOPPED
+        self.LEAVING = constantsObject.LEAVING
+        
     """
     Stores bus information
     """    
@@ -20,7 +26,7 @@ class Bus:
     next_stop_lat_lng = (0,0)
     actual_number = 0
     colloquial_number = 0
-    
+
     #function to update and retrieve coordinates of bus
     #getters
     def get_bus_current_lat_lng(self):
@@ -47,18 +53,21 @@ class Bus:
         self.colloquial_number = lat_lng
       
     #Geocodes distance
-    def busMovementAgainstTarget(self, targetCoordinates):
+    def getBusMovementAgainstTarget(self, targetCoordinates):
         #Compare if the current coordinate of bus is less or greater than target
         #This gives us idea if the bus is moving towards or away from the target coordinates
         distanceBefore = self.__find_distance_between_coordinates( self.get_previous_lat_lng(), targetCoordinates)
         distanceAfter = self.__find_distance_between_coordinates( self.get_bus_current_lat_lng(), targetCoordinates)
         if distanceAfter > distanceBefore:
-            return -1
+            return self.LEAVING
         elif distanceAfter < distanceBefore:
-            return 1
+            return self.APPROACHING
         else:
-            return 0
-            
+            return self.STOPPED
+    
+    def getBusDistanceFromTarget(self, targetCoordinates):
+        return self.__find_distance_between_coordinates( self.get_bus_current_lat_lng(), targetCoordinates)
+    
     def __find_distance_between_coordinates(self, bus_coordinates, target_location_coordinates):
         """
         This function returns exact distance (and not the map/road driving distance)
@@ -77,4 +86,4 @@ class Bus:
         distance = R * c
         logging.info("\nIn find_distance_between_coordinates: distance:"+str(distance))
         return distance
-
+    
