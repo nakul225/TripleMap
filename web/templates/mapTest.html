@@ -9,6 +9,8 @@
         </style>
         <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
         <script type="text/javascript" src="/static/mapTest.js"></script>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
         <!--<script>
             function initialize() {
                 var map_canvas = document.getElementById('map_canvas');
@@ -36,19 +38,50 @@
         </script>-->
     </head>
     <body>
-        <label>University: </label>
-        <select onchange="changeCity(this, {{cities|tojson|safe}})">
+        <label>University:</label>
+        {% for city in cities %}
+        <input type="hidden" id='{{city}}' value= '{{cities[city]["Latitude"]}}:{{cities[city]["Longitude"]}}'/>
+        {% endfor %}
+        
+        <select id='selectUniv' onchange="changeCity(this, $('#' + this.options[this.selectedIndex].value).val())">
           {% for city in cities %}
             <option>
-              {{ city }}
+              {{city}}
             </option>
           {% endfor %}
         </select>
-        <label>Address: </label>
-        <input id="address" onkeydown="if (event.keyCode == 13) addMark()"></input>
-        <label>Bus Number: </label>
-        <input id="busNum"></input>
-        
+        <form id ="busAlert">
+            <label>Address: </label>
+            <input id="address" onkeydown="if (event.keyCode == 13) addMark()"></input>
+            <label>Bus Number: </label>
+            <input id="busNum" placeholder="List of buses" title="Enter tracking bus numbers separated by commas"></input>
+            <label>Alert Distance</label>
+            <input id="alertDistance"></input>
+        </form>
         <div id="map_canvas"></div>
+        <script type="text/javascript">
+        /*
+            $("#busNum").focus(function() {
+               $("#busNum").tooltip("enable");
+            });
+
+            $("#busNum").blur(function() {
+               $("#busNum").tooltip("disable");
+            });
+        
+            var busList = document.getElementById("busNum");
+            busList.tooltip({
+                disabled: true
+            }).on("focusin", function () {
+                $(this)
+                    .tooltip("enable")
+                    .tooltip("open");
+            }).on("focusout", function () {
+                $(this)
+                    .tooltip("close")
+                    .tooltip("disable");
+            });
+*/
+        </script>
     </body>
 </html>
