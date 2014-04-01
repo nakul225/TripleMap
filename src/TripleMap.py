@@ -3,10 +3,14 @@ from Route import *
 from constants import *
 from BusOperations import *
 
+
+class TripleMap:
+
+
 if __name__ == "__main__":
 
     #Input
-    city = "BLOOMINGTON_TRANSIT"
+    city = "IUB"
     #target location coordinates
     targetCoordinates = (39.17155659473131, -86.50890111923218)
 

@@ -103,7 +103,7 @@ class Route:
         Example:
             INPUT: 
                 colloquial_bus_numbers = ['6','9','3','5']
-                DOUBLEMAP_CITY = "BLOOMINGTON_TRANSIT"
+                DOUBLEMAP_CITY = "IUB"
             OUPUT:
                 dict_colloquial_bus_numbers = {u'9': 1001555, u'3': 1001536, u'5': 1001543, u'6': 1001546}
         """

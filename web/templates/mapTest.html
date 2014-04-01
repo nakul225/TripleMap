@@ -7,35 +7,8 @@
                 height: 800px;
             }
         </style>
-        <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-        <script type="text/javascript" src="/static/mapTest.js"></script>
-        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-        <!--<script>
-            function initialize() {
-                var map_canvas = document.getElementById('map_canvas');
-                var map_options = {
-                    center: new google.maps.LatLng(39.13858199058352, -86.5118408203125),
-                    zoom: 11,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
-                }
-                var map = new google.maps.Map(map_canvas, map_options);
-
-                google.maps.event.addListener(map, 'dblclick', function(event) {
-                    //Get the position of clicked point
-                    
-                    location = event.latLng;
-                    //TODO: why doesnt the event stop! x(
-                    event.stop();
-                });
-            }
-            google.maps.event.addDomListener(window, 'load', initialize);
-            window.alert(location);
-            function addMark(address){
-              alert(address);
-            }
-
-        </script>-->
+        <link rel="stylesheet" type="text/css" href="smoothness-1.8.13/jquery-ui-1.8.13.custom.css">
+        <link rel="stylesheet" type="text/css" href="/static/extern/dropdown-check-list/css/ui.dropdownchecklist.themeroller.css">    
     </head>
     <body>
         <label>University:</label>
@@ -59,29 +32,12 @@
             <input id="alertDistance"></input>
         </form>
         <div id="map_canvas"></div>
-        <script type="text/javascript">
-        /*
-            $("#busNum").focus(function() {
-               $("#busNum").tooltip("enable");
-            });
-
-            $("#busNum").blur(function() {
-               $("#busNum").tooltip("disable");
-            });
+        <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
         
-            var busList = document.getElementById("busNum");
-            busList.tooltip({
-                disabled: true
-            }).on("focusin", function () {
-                $(this)
-                    .tooltip("enable")
-                    .tooltip("open");
-            }).on("focusout", function () {
-                $(this)
-                    .tooltip("close")
-                    .tooltip("disable");
-            });
-*/
-        </script>
+        <script type="text/javascript" src="/static/mapTest.js"></script>
+        <script type="text/javascript" src="/static/extern/dropdown-check-list/js/ui.dropdownchecklist-1.4-min.js"></script>
+
     </body>
 </html>

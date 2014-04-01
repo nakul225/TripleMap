@@ -3,23 +3,25 @@ from flask import Flask, current_app, request, session, Flask, render_template, 
 from pprint import pprint
 import json
 import sys
+from src.constants import Constants
 
 app = Flask(__name__)
 app.debug = True
 app.config.from_object(__name__)
 
-
 @app.route('/', methods=['POST', 'GET'])
 def load():
     print "Loading!!"
-
-    json_data = open('urls.json')
-    urls = json.load(json_data)
-    cities = json.dumps(urls['coordinates'])
+    const = Constants()
+    const.load_constants("../src/constants.json")
+    #urls = json.load(json_data)
+    cities = const.COORDINATES
+    pprint(cities)
     if request.method == "POST":
         userRequestLat = request.form['lat']
         userRequestLng = request.form['lng']
-    return render_template('mapTest.html', cities=urls['coordinates'])
+        userUniv = request.form['univ']
+    return render_template('mapTest.html', cities=cities)
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -3,3 +3,4 @@ API_KEY.*
 ipynb_checkpoints
 *.pyc
 *.log
+dist/

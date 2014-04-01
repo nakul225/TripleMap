@@ -7,6 +7,7 @@ class Constants:
     """
     DOUBLEMAP_BUSES_API_URL = {}
     DOUBLEMAP_ROUTES_API_URL = {}
+    COORDINATES = {}
     APPROACHING = 0
     STOPPED = 0
     LEAVING = 0
@@ -21,6 +22,7 @@ class Constants:
             sys.exit(0)
         self.DOUBLEMAP_BUSES_API_URL = dict_values['DOUBLEMAP_BUSES_API_URL']
         self.DOUBLEMAP_ROUTES_API_URL = dict_values['DOUBLEMAP_ROUTES_API_URL']
+        self.COORDINATES = dict_values['COORDINATES']
         self.APPROACHING = dict_values['APPROACHING']
         self.STOPPED = dict_values['STOPPED']
         self.LEAVING = dict_values['LEAVING']
@@ -29,7 +31,7 @@ if __name__ == "__main__":
     filename = "constants.json"
     myTestObj = Constants()
     myTestObj.load_constants(filename)
-    print myTestObj.DOUBLEMAP_BUSES_API_URL['NORTHWESTERN']
+    print myTestObj.DOUBLEMAP_BUSES_API_URL['NW']
     print myTestObj.DOUBLEMAP_ROUTES_API_URL 
     print myTestObj.APPROACHING
     print myTestObj.STOPPED
