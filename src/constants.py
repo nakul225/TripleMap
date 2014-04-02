@@ -1,7 +1,16 @@
 import json
 import sys
 
-class Constants:
+class Singleton(type):
+    def __call__(cls, *args, **kwargs):
+        try:
+            return cls.__instance
+        except AttributeError:
+            cls.__instance = super(Singleton, cls).__call__(*args, **kwargs)
+            return cls.__instance
+
+class Constants(object):
+    __metaclass__ = Singleton
     """
     This class reads data from JSON files and stores all the constants.
     """
