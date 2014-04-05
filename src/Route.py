@@ -112,11 +112,22 @@ class Route:
         set_colloquial_bus_numbers = set(colloquial_bus_numbers)
         dict_colloquial_bus_numbers = {} #This would store mapping of colloquial bus number to their actual route numbers
         for route in response:
-            colloquial_route_name = route['short_name']
+            colloquial_route_name = route['name']
             #If the user is looking for buses on this particular route, fetch the actual route number 
             if colloquial_route_name in set_colloquial_bus_numbers:
                 dict_colloquial_bus_numbers[colloquial_route_name] = route['id']
         logging.info("\nIn find_routes_for_colloquial_bus_numbers: dict_colloquial_bus_numbers :"+str(dict_colloquial_bus_numbers))
         return dict_colloquial_bus_numbers
-    
+
+    def get_all_buses(self):
+        """
+        Returns the list of colloquial_bus_numbers for the specified city/university.
+        """
+        doublemap_routes_url = self.DOUBLEMAP_ROUTES_API_URL
+        response = json.loads(urllib.urlopen(doublemap_routes_url).read())
+
+        busList = []
+        for route in response:
+            busList.append(route['name'])
+        return busList
 
