@@ -7,6 +7,7 @@ from pprint import pprint
 import time
 import logging
 from datetime import datetime
+from constants import Constants
 
 class Route:
     """
@@ -130,4 +131,19 @@ class Route:
         for route in response:
             busList.append(route['name'])
         return busList
+
+if __name__ == "__main__":
+
+    #Input
+    city = "IUB"
+    #target location coordinates
+    targetCoordinates = (39.17155659473131, -86.50890111923218)
+     #Create constans object to fetch all constant values
+    constantsObject = Constants()
+    constantsObject.load_constants("constants.json")
+    #Create route object
+    routeObject = Route(constantsObject, city)
+    listColloquialBusNumbers = ['3 College Mall / Bradford Place','6 Campus Shuttle - Sat']
+    listOfActualBusNumbers = routeObject.get_actual_bus_numbers(listColloquialBusNumbers)
+    print listOfActualBusNumbers
 

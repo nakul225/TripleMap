@@ -22,7 +22,8 @@ function initialize() {
         $("#selectBuses :selected").each(function(){
             selectedValues.push($(this).val()); 
         });
-        var busList = selectedValues.join();
+        var busList = JSON.stringify(selectedValues);
+        //var busList = selectedValues.join();
         //Get the position of clicked point
         var formData = {  lat:event.latLng.lat(),
                           lng:event.latLng.lng(),

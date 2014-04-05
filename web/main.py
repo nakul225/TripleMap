@@ -20,16 +20,11 @@ def load():
     cities = const.COORDINATES
     if request.method == "POST":
         formData  = request.form
-        userRequest = {}
-        if 'busList' in formData:
-            userRequest['busList'] = formData.getlist('busList')
-        for key, value in formData.iteritems():
-            if key != 'busList':
-                userRequest[key] = value
-
+        userRequest = formData.to_dict()
+        userRequest['busList'] = json.loads(userRequest['busList'])
         tplClient = TripleMapClient(userRequest)
         tplClient.pollDistance()
-
+        
     return render_template('mapTest.html', cities=cities)
 
 @app.route('/busList/<city>', methods=['GET'])
