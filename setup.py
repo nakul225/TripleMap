@@ -22,6 +22,10 @@ setup(
     url = "https://github.com/nakul225/TripleMap",
     install_requires = reqs,
     packages=['src'],
+    package_data = {
+        # If any package contains *.json files, include them:
+        '': ['*.json']
+    },
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",

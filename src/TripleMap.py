@@ -4,7 +4,58 @@ from constants import *
 from BusOperations import *
 
 
-class TripleMap:
+class TripleMapClient:
+
+    alertDistance = 0.3
+    busList = []
+    targetCoordinates = (39.17155659473131, -86.50890111923218)
+    city = "IUB"
+
+    def __init__(self, userRequest):
+        if 'alertDistance' in userRequest:
+            alertDistance = userRequest['alertDistance']
+        if 'busList' in userRequest:
+            busList = userRequest['busList']
+        #if post data contains latitude it contains target co-ordinates
+        if 'lat' in userRequest:
+            targetCoordinates = (userRequest['lat'], userRequest['lng'])
+        if 'city' in userRequest:
+            city = userRequest['city']
+            
+        #TODO work on the direction of bus (would be specified by user)
+        self.constantsObject = Constants()
+        #TODO constants path :/ 
+        self.constantsObject.load_constants("/Users/pushkarjoshi/constants.json")
+        #Create bus operations object
+        self.busOperationsObject = BusOperations(self.constantsObject, city)
+        #Create route object
+        self.routeObject = Route(self.constantsObject, city)
+
+    def pollDistance(self):
+        #get the actual bus objects from the user specified name list
+        listOfActualBusNumbers = self.routeObject.get_actual_bus_numbers(self.busList)
+        #Create bus objects
+        listOfBusObjects = [] #Stores list of all bus objects
+        for actualNumber in listOfActualBusNumbers:
+            busObject = Bus(self.constantsObject)
+            busObject.set_actual_number(actualNumber)
+            listOfBusObjects.append(busObject)
+
+        while True:
+            time.sleep(2) #sleep for 2 second before updating status of each bus
+            listOfBusObjects = self.busOperationsObject.updateBusStatus(listOfBusObjects)
+            #check which buses are approaching, then track them or show them or whatever
+            for bus in listOfBusObjects:
+                status = bus.getBusMovementAgainstTarget(targetCoordinates)
+                if status == self.constantsObject.APPROACHING:
+                    status = "APPROACHING"
+                elif status == self.constantsObject.LEAVING:
+                    status = "LEAVING"
+                else:
+                    status = "STOPPED"
+                print map_actual_bus_numbers_to_colloquial_bus_numbers[bus.get_actual_number()]," :",status, \
+                " is at distance: ",bus.getBusDistanceFromTarget(targetCoordinates)," miles"
+
 
 
 if __name__ == "__main__":
@@ -28,7 +79,7 @@ if __name__ == "__main__":
     print '-'*50
     
     #Make a list of bus objects
-    listColloquialBusNumbers = ['6','9','3']
+    listColloquialBusNumbers = ['3 College Mall / Bradford Place','6 Limited','9 Limited']
     listOfActualBusNumbers = routeObject.get_actual_bus_numbers(listColloquialBusNumbers)
     print "Colloquial no:",listColloquialBusNumbers
     print "Actual nos:",listOfActualBusNumbers

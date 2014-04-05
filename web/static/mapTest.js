@@ -11,17 +11,24 @@ function initialize() {
     var map_canvas = document.getElementById('map_canvas');
     var map_options = {
         center: new google.maps.LatLng(39.13858199058352, -86.5118408203125),
-        zoom: 14,
+        zoom: 4,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     }
     window.map = new google.maps.Map(map_canvas, map_options);
 
     google.maps.event.addListener(map, 'click', function(event) {
+
+        var selectedValues = [];    
+        $("#selectBuses :selected").each(function(){
+            selectedValues.push($(this).val()); 
+        });
+        var busList = selectedValues.join();
         //Get the position of clicked point
         var formData = {  lat:event.latLng.lat(),
                           lng:event.latLng.lng(),
-                          univ: $('#selectUniv').val(),
-                          busList: $('#')
+                          city: $('#selectUniv').val(),
+                          busList: busList,
+                          alertDistance: $('#alertDistance').val()
                         }
         $.post("/", formData);
         //TODO: why doesnt the event 'dblclick' stop propogating! x(
@@ -37,8 +44,19 @@ function addMark(){
 }
 
 function changeCity(univOptions, coordinates){
+  var response;
   latLng = coordinates.split(':');
   window.map.setZoom(14);
   window.map.setCenter(new google.maps.LatLng( latLng[0], latLng[1] ) );
+  $('#selectBuses').empty();
+  $.get("/busList/" + univOptions, function(data){
+    data = JSON.parse(data);
+    for(i=0;i<data.length;i++){
+      /// *** TODO check for better options for chk boxes in select
+      $("#selectBuses").append(new Option(data[i], data[i]));
+    }
+    
+    
+  });
 }
 

@@ -5,6 +5,7 @@ import json
 import sys
 from src.constants import Constants
 from src.Route import Route
+from src.TripleMap import TripleMapClient
 
 app = Flask(__name__)
 app.debug = True
@@ -25,6 +26,10 @@ def load():
         for key, value in formData.iteritems():
             if key != 'busList':
                 userRequest[key] = value
+
+        tplClient = TripleMapClient(userRequest)
+        tplClient.pollDistance()
+
     return render_template('mapTest.html', cities=cities)
 
 @app.route('/busList/<city>', methods=['GET'])

@@ -7,8 +7,8 @@
                 height: 800px;
             }
         </style>
-        <link rel="stylesheet" type="text/css" href="smoothness-1.8.13/jquery-ui-1.8.13.custom.css">
-        <link rel="stylesheet" type="text/css" href="/static/extern/dropdown-check-list/css/ui.dropdownchecklist.themeroller.css">    
+        <link rel="stylesheet" type="text/css" href="/static/extern/dropdown-check-list/doc/smoothness-1.8.13/jquery-ui-1.8.13.custom.css">
+        <link rel="stylesheet" type="text/css" href="/static/extern/dropdown-check-list/css/ui.dropdownchecklist.standalone.css">
     </head>
     <body>
         <label>University:</label>
@@ -16,18 +16,21 @@
         <input type="hidden" id='{{city}}' value= '{{cities[city]["Latitude"]}}:{{cities[city]["Longitude"]}}'/>
         {% endfor %}
         
-        <select id='selectUniv' onchange="changeCity(this, $('#' + this.options[this.selectedIndex].value).val())">
+        <select id='selectUniv' onchange="changeCity(this.options[this.selectedIndex].value, $('#' + this.options[this.selectedIndex].value).val())">
+            <option>
+            </option>
           {% for city in cities %}
             <option>
               {{city}}
             </option>
           {% endfor %}
         </select>
-        <form id ="busAlert">
+        <form id ="busAlert" method="post">
             <label>Address: </label>
             <input id="address" onkeydown="if (event.keyCode == 13) addMark()"></input>
             <label>Bus Number: </label>
-            <input id="busNum" placeholder="List of buses" title="Enter tracking bus numbers separated by commas"></input>
+            <select id="selectBuses" multiple="multiple">
+            </select>
             <label>Alert Distance</label>
             <input id="alertDistance"></input>
         </form>
@@ -38,6 +41,9 @@
         
         <script type="text/javascript" src="/static/mapTest.js"></script>
         <script type="text/javascript" src="/static/extern/dropdown-check-list/js/ui.dropdownchecklist-1.4-min.js"></script>
+        <script type="text/javascript">
+          //$('#selectBuses').dropdownchecklist({icon: {}, width: 150 });
+        </script>
 
     </body>
 </html>
