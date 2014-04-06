@@ -41,16 +41,16 @@ class Bus:
         return self.colloquial_number
    
     #setters
-    def set_bus_current_lat_lng(self, lat_lng):
-        self.lat_lng = lat_lng
-    def set_previous_lat_lng(self, lat_lng):
-        self.previous_lat_lng = lat_lng
-    def set_next_lat_lng(self, lat_lng):
-        self.next_stop_lat_lng = lat_lng
-    def set_actual_number(self, lat_lng):
-        self.actual_number = lat_lng
-    def set_colloquial_number(self, lat_lng):
-        self.colloquial_number = lat_lng
+    def set_bus_current_lat_lng(self, data):
+        self.lat_lng = data
+    def set_previous_lat_lng(self, data):
+        self.previous_lat_lng = data
+    def set_next_lat_lng(self, data):
+        self.next_stop_lat_lng = data
+    def set_actual_number(self, data):
+        self.actual_number = data
+    def set_colloquial_number(self, data):
+        self.colloquial_number = data
       
     #Geocodes distance
     def getBusMovementAgainstTarget(self, targetCoordinates):

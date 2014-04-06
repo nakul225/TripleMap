@@ -3,13 +3,13 @@ from Route import *
 from constants import *
 from BusOperations import *
 
-
 class TripleMapClient:
 
     alertDistance = 0.3
     busList = []
     targetCoordinates = (39.17155659473131, -86.50890111923218)
     city = "IUB"
+    #interface = Interface()
 
     def __init__(self, userRequest):
         if 'alertDistance' in userRequest:
@@ -59,6 +59,12 @@ class TripleMapClient:
                     status = "LEAVING"
                 else:
                     status = "STOPPED"
+                currentDist = bus.getBusDistanceFromTarget(self.targetCoordinates)
+                if currentDist <= 0.4:
+                    #send notification & remove it from the list
+                    #TODO sending notification to the client
+                    listOfBusObjects.remove(bus)
+                    yield bus.get_colloquial_number()
                 print map_actual_bus_numbers_to_colloquial_bus_numbers[bus.get_actual_number()]," :",status, \
                 " is at distance: ",bus.getBusDistanceFromTarget(self.targetCoordinates)," miles"
 

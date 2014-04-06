@@ -56,8 +56,15 @@ function changeCity(univOptions, coordinates){
       /// *** TODO check for better options for chk boxes in select
       $("#selectBuses").append(new Option(data[i], data[i]));
     }
-    
+    $('#busMapFrame').src = $('#busMap').val();
     
   });
 }
 
+var source = new EventSource("/alert");
+/*eventSrc.addEventListener('busalert', function(data){
+  alert("Bus: " + data + "near target location");
+})*/
+source.onmessage = function(event){
+  alert(event.data);
+}

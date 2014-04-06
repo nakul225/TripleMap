@@ -12,9 +12,11 @@
     </head>
     <body>
         <label>University:</label>
+        <!-- Hidden fields for JS work -->
         {% for city in cities %}
         <input type="hidden" id='{{city}}' value= '{{cities[city]["Latitude"]}}:{{cities[city]["Longitude"]}}'/>
         {% endfor %}
+        <input type="hidden" id='busMap' value="{{mapUrl}}"/>
         
         <select id='selectUniv' onchange="changeCity(this.options[this.selectedIndex].value, $('#' + this.options[this.selectedIndex].value).val())">
             <option>
@@ -35,6 +37,7 @@
             <input id="alertDistance"></input>
         </form>
         <div id="map_canvas"></div>
+        <iframe id="busMapFrame" src=""></iframe>
         <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
         <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
         <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
