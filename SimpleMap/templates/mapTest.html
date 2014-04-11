@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #map_canvas {
+                width: 1000px;
+                height: 800px;
+            }
+        </style>
+        <link rel="stylesheet" type="text/css" href="/static/extern/dropdown-check-list/doc/smoothness-1.8.13/jquery-ui-1.8.13.custom.css">
+        <link rel="stylesheet" type="text/css" href="/static/extern/dropdown-check-list/css/ui.dropdownchecklist.standalone.css">
+    </head>
+    <body>
+        <label>University:</label>
+        <!-- Hidden fields for JS work -->
+        {% for city in cities %}
+        <input type="hidden" id='{{city}}' value= '{{cities[city]["Latitude"]}}:{{cities[city]["Longitude"]}}'/>
+        {% endfor %}
+        <input type="hidden" id='busMap' value="{{mapUrl}}"/>
+        
+        <select id='selectUniv' onchange="changeCity(this.options[this.selectedIndex].value, $('#' + this.options[this.selectedIndex].value).val())">
+            <option>
+            </option>
+          {% for city in cities %}
+            <option>
+              {{city}}
+            </option>
+          {% endfor %}
+        </select>
+        <form id ="busAlert" method="post">
+            <input type=text size=5 name=a>
+            <label>Address: </label>
+            <input id="address" onkeydown="if (event.keyCode == 13) addMark()"></input>
+            <label>Bus Number: </label>
+            <select id="selectBuses" multiple="multiple">
+            </select>
+            <label>Alert Distance</label>
+            <input id="alertDistance"></input>
+        </form>
+        <div id="map_canvas"></div>
+        <iframe id="busMapFrame" src=""></iframe>
+        <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+        
+        <script type="text/javascript" src="/static/mapTest.js"></script>
+        <script type="text/javascript" src="/static/extern/dropdown-check-list/js/ui.dropdownchecklist-1.4-min.js"></script>
+        <script type="text/javascript">
+          //$('#selectBuses').dropdownchecklist({icon: {}, width: 150 });
+          
+          $(document).ready(
+                    function() {
+                        sse = new EventSource('/my_event_source');
+                        sse.onmessage = function(message) {
+                            console.log('A message has arrived!');
+                            $('#output').append('<li>'+message.data+'</li>');
+                        }
+
+                    })
+        </script>
+       
+        <h2>Demo</h2>
+
+        <ul id="output">
+
+        </ul>
+    </body>
+</html>
